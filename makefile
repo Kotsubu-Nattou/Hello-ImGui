@@ -24,7 +24,8 @@ CFLAGS      = -g -Wall
 
 # デフォルトターゲット（先頭にあるのでデフォルトで実行）
 .PHONY: all
-all: makeChild $(PROG)
+#all: makeChild $(PROG)
+all: $(PROG)
 
 
 # ターゲット：リンカ
