@@ -158,17 +158,17 @@ main()
     ImGui_ImplOpenGL2_Init();
 
     // @ フォント
+    // ASCII文字用フォントと日本語用フォントを、混在利用できるように設定
     ImGuiIO &guiIO = ImGui::GetIO();
-    // 1バイト文字と全角文字、それぞれフォントを読み込んで混在できるようにする
     ImFontConfig guiFontConfig;
     guiFontConfig.MergeMode = true;
-    // 1バイト文字用のフォント（文字列リテラルは "" で記述）
+    // ASCII文字用のフォント
     // guiIO.Fonts->AddFontDefault();
     guiIO.Fonts->AddFontFromFileTTF("imgui/fonts/Roboto-Medium.ttf", 21.0f);
     // guiIO.Fonts->AddFontFromFileTTF("imgui/fonts/Cousine-Regular.ttf", 21.0f);
     // guiIO.Fonts->AddFontFromFileTTF("imgui/fonts/DroidSans.ttf", 21.0f);
     // guiIO.Fonts->AddFontFromFileTTF("imgui/fonts/ProggyTiny.ttf", 21.0f);
-    // 全角文字用のフォント（文字列リテラルは u8"" で記述）
+    // 日本語用のフォント
     guiIO.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\meiryo.ttc", 26.0f,
                                     &guiFontConfig, guiIO.Fonts->GetGlyphRangesJapanese());
 
@@ -209,13 +209,8 @@ main()
     // ウィンドウの属性：オーバーレイ
     ImGuiWindowFlags flgGuiAttrOverlay = 0;
     flgGuiAttrOverlay |= ImGuiWindowFlags_NoTitleBar;            // タイトルバー非表示
-    // flgGuiAttrOverlay |= ImGuiWindowFlags_MenuBar;               // メニューを使用する
     flgGuiAttrOverlay |= ImGuiWindowFlags_NoMove;                // ウィンドウのドラッグ移動無し
     flgGuiAttrOverlay |= ImGuiWindowFlags_AlwaysAutoResize;      // 自動リサイズする（手動リサイズ無し）
-    // flgGuiAttrOverlay |= ImGuiWindowFlags_NoResize;              // 手動リサイズ無し
-    // flgGuiAttrOverlay |= ImGuiWindowFlags_NoBackground;          // ウィンドウの背景を非表示
-    // flgGuiAttrOverlay |= ImGuiWindowFlags_NoScrollbar;           // スクロールバー非表示
-    // flgGuiAttrOverlay |= ImGuiWindowFlags_NoCollapse;            // 最小化無し
     flgGuiAttrOverlay |= ImGuiWindowFlags_NoNav;                 // ナビ無し
     flgGuiAttrOverlay |= ImGuiWindowFlags_NoBringToFrontOnFocus; // 最前面に表示しない
     
@@ -247,13 +242,13 @@ main()
         // ・ImGuiの各操作子のことを、ウィジェットと言う
         // ・ImGuiはステート駆動方式
         // ・フロー
-        //     1. ImGuiを初期化。フォントなどImGui全体の設定を行う
+        //     1. ImGuiを初期化。フォントや外観などImGui全体の設定を行う
         //    （GLFWループ開始）
         //       2. ImGuiバッファをクリア
         //       3. ウィジェットの内容を定義
         //       4. ImGuiバッファにレンダリング
         //       5. クライアントの処理、及びドロー
-        //       6. ImGuiバッファをドロー（最前面に来る）
+        //       6. ImGuiバッファをドロー（最前面に来させる）
         //    （GLFWループ終了）
         //     7. ImGuiを解放
         // ・ウィジェットの表示は「そのメソッドが実行された」かどうかで決まる
@@ -261,9 +256,9 @@ main()
         // ・if (ImGui::InputInt("Value", &val)) {/*処理*/}
         //   これで、ウィジェットの「表示」と「イベント処理」を兼ねている。
         //   if文を無くせば、「非イベント型のウィジェット」となる。
-        // ・注意。glfwSetTime() を実行するとImGuiがエラーする
+        // ・注意。glfwSetTime(0.0)をGLFWループ内で実行するとImGuiが実行時エラーする
 
-        // @ ImGuiの内容を刷新
+        // @ ImGuiのバッファを刷新
         ImGui_ImplOpenGL2_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -279,6 +274,9 @@ main()
         ImGui::Begin("Hello ImGui!", nullptr, flgGuiAttrMain);
 
         // メニューバー
+        // ・BeginMenuBar ～ EndMenuBar --- メニューを表示
+        // ・BeginMenu    ～ EndMenu    --- メニューの見出し
+        // ・MenuItem                   --- 見出し内の項目
         if (ImGui::BeginMenuBar()) {
             // Menu
             if (ImGui::BeginMenu("Menu")) {
@@ -296,16 +294,19 @@ main()
             ImGui::EndMenuBar();
         }
 
-        // 日本語テキストを表示（UTF-8）
+        // 日本語テキストを表示（UTF-8に対応）
+        // ・予めImGuiのフォントマージモードをTrueにして、日本語フォントを追加登録しておく。
         // ・文字列リテラルが、内部でどう扱われるかはコンパイラ依存。
         // ・明示的に文字コードを指定するには、文字列リテラルの接頭辞にu8を付加。
-        //   これで、仮引数の直接指定や、変数での運用も可能。
-        // ・ちなみに、現開発環境（GCC、ソースコードUTF-8）では、u8を付けなくても良い。
+        //   これで、仮引数の直接指定や、変数での運用が可能。
+        // ・ちなみに、現開発環境（GCC、ソースファイルUTF-8）では、u8を付けなくても良い。
         // ・型について
         //   UTF-8はマルチバイト文字でありバイト数可変である。それに対し、
         //   ワイド文字（wchar_t）は、2バイト固定で扱いは楽であるが、UTF-8と互換性がない。
-        //   よってリテラルの型は、const char* を使用する（constが無いとコンパイラワーニング）
-        ImGui::Text(u8"日本語を表示するには、文字列リテラルの接頭辞にu8を付加。");
+        //   よってリテラルの型は、const char* 又はchar型配列に格納のこと。
+        //   注意。char*の場合は、constが無いとコンパイラがワーニングする。また、
+        //   配列の場合は、配列の要素数と各文字の、先頭バイトや文字数は一致しない。
+        ImGui::Text(u8"UTF-8対応。表示は文字列リテラルの接頭辞にu8を付加。");
         static const char *str = u8"変数での運用も可能。";
         ImGui::Text(str);
         ImGui::NewLine();
@@ -321,7 +322,6 @@ main()
         ImGui::DragIntRange2("DragIntRange2", &valMin, &valMax, 1.0f,
                              20, 100, "%dunit");  // 範囲超えバグあり（後で変数を修正するかDragIntなどで代用すること）
         ImGui::NewLine();
-        ImGui::Separator();
 
         // コマンドボタン
         static int cnt = 0;
@@ -331,25 +331,36 @@ main()
 
         // チェックボックス
         static bool isShowGui2 = false;
-        ImGui::Checkbox("Show GUI2", &isShowGui2);
+        ImGui::Checkbox("Checkbox (Show GUI2)", &isShowGui2);
         ImGui::NewLine();
 
         // カラーセレクター
         static float rgba[4] = {0.4f, 0.6f, 0.2f, 0.8f};
-        ImGui::ColorEdit4("B.G. Color", rgba);
+        ImGui::ColorEdit4("ColorEdit4", rgba);
         ImGui::NewLine();
+
+        // ツリー
+        // ・TreeNode --- 階層構造を作る（実行した時点で階層が1つ下る）
+        // ・TreePop  --- 階層を1つ戻す
         ImGui::Separator();
+        if (ImGui::TreeNode("TreeNode..TreePop")) {
 
-        // ラジオボタン
-        static int radioId = 1;
-        ImGui::RadioButton("foo", &radioId, 0); ImGui::SameLine();
-        ImGui::RadioButton("bar", &radioId, 1); ImGui::SameLine();
-        ImGui::RadioButton("hoge", &radioId, 2);
-        ImGui::NewLine();
+            // ラジオボタン
+            static int radioId = 1;
+            ImGui::NewLine();
+            ImGui::RadioButton("foo", &radioId, 0); ImGui::SameLine();
+            ImGui::RadioButton("bar", &radioId, 1); ImGui::SameLine();
+            ImGui::RadioButton("RadioButton", &radioId, 2);
+            ImGui::NewLine();
 
-        // コンボボックス
-        static int comboId = 2;
-        ImGui::Combo("Combo", &comboId, "aaa\0bbb\0ccc\0ddd\0eee\0");
+            // コンボボックス
+            static int comboId = 2;
+            ImGui::Combo("Combo", &comboId, "aaa\0bbb\0ccc\0ddd\0eee\0");
+            ImGui::NewLine();
+
+            ImGui::TreePop();  // ツリーから出る（TreeNodeと1対1でなければエラー）
+        }
+        ImGui::Separator();
         ImGui::NewLine();
 
         // リストボックス
@@ -359,24 +370,29 @@ main()
         ImGui::NewLine();
 
         // セレクタブル
+        // ・しくみ
+        //   1. Columnsでカラム構造を定義
+        //   2. Selectableで選択可能アイテムを置く
+        //   3. NextColumnでカラムを1つ進める（自動で行送りなどもしてくれる）2.に戻る
+        //   4. カラム数を元に戻す（以降に影響を及ぼさないため）
         static bool isSelected[8] = {};
         ImGui::Separator();
-        ImGui::Columns(4, nullptr, false);  // 1セットのカラム数（並びは右方向）
+        ImGui::Columns(4, nullptr, false);  // カラムを使用（1セット4項目。右並び）
 
-        for (int i = 0; i < 8; ++i) {
-            char str[32];
-            sprintf(str, "Item%d", i);
-            if (ImGui::Selectable(str, &isSelected[i])) {/*処理を記述*/}
-            ImGui::NextColumn();  // カラムを進める（これが無いとSelectableが縦に連なる）
+        for (int i = 0; i < 6; ++i) {
+            char item[32];
+            sprintf(item, "Selectable%d", i);
+            ImGui::Selectable(item, &isSelected[i]);
+            ImGui::NextColumn();  // カラムを進める（これが無いとSelectableが縦に並ぶ）
         }
-        ImGui::Columns(1);  // カラムを初期化（以降全てに適応してしまうため）
+        ImGui::Columns(1);  // カラムを初期化（以降に影響を及ぼさないため）
         ImGui::Separator();
 
         ImGui::End();
 
 
         // @ ウィンドウ：GUI2
-        // 表示されるかどうかは下のブロックが実行されるかどうか。閉じる方法は3つ
+        // 表示されるかどうかは下のブロックが実行されるかどうか。閉じる方法が3つ
         // あることに意識すること（上記Checkbox, GUI2のButton, GUI2の右上の閉じるボタン）
         if (isShowGui2) {
             ImGui::Begin("GUI2", &isShowGui2, flgGuiAttrSub);
@@ -432,28 +448,28 @@ main()
         ImGui::End();
 
 
-        // @ ImGuiの内容を生成
+        // @ ImGuiのバッファにレンダリング
         ImGui::Render();
 
 
 
-        // @@ 描画
+        // @@ ドロー
         static int w, h;
         glfwGetWindowSize(window, &w, &h);
         glViewport(0, 0, w, h);
         glClearColor(rgba[0], rgba[1], rgba[2], rgba[3]);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // ここにメインの描画処理を記述...
+        // ここにメインのドロー処理を記述...
 
-        // @ ImGuiを描画（最前面にするため最後に描画）
+        // @ ImGuiをドロー（最前面にするため最後に描画）
         ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
 
 
 
         // @@ 後処理
-        // printf("Time(s):%f\n", glfwGetTime());  // 1ループの純粋な処理時間
         int64_t elapseTime = static_cast<int64_t>(glfwGetTime() - startTime) * 1000;
+        // printf("Time(ms):%d\n", elapseTime);  // 1ループの純粋な処理時間
         doWait(elapseTime, WAIT_TIME);
         glfwMakeContextCurrent(window);
         glfwSwapBuffers(window);
