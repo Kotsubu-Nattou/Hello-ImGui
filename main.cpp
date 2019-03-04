@@ -213,20 +213,20 @@ main()
     flgGuiAttrOverlay |= ImGuiWindowFlags_AlwaysAutoResize;      // 自動リサイズする（手動リサイズ無し）
     flgGuiAttrOverlay |= ImGuiWindowFlags_NoNav;                 // ナビ無し
     flgGuiAttrOverlay |= ImGuiWindowFlags_NoBringToFrontOnFocus; // 最前面に表示しない
-    
 
 
-	// @@@ 座標変換（モデルの実寸表示。左上基準。簡易2d用）
-	// @ プロジェクション座標変換
-	// ワールド座標に直に描画するため、「モデルビュー座標変換」は省略。
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();  // 初期化（単位行列）
-	// 正投影行列を作り、行列に掛け合わせる
-	// void glOrtho( 左x, 右x, 下y, 上y, 手前z, 奥z );
-	glOrtho(0.0, static_cast<GLdouble>(FORM_WIDTH),
+
+    // @@@ 座標変換（モデルの実寸表示。左上基準。簡易2d用）
+    // @ プロジェクション座標変換
+    // ワールド座標に直に描画するため、「モデルビュー座標変換」は省略。
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();  // 初期化（単位行列）
+    // 正投影行列を作り、行列に掛け合わせる
+    // void glOrtho( 左x, 右x, 下y, 上y, 手前z, 奥z );
+    glOrtho(0.0, static_cast<GLdouble>(FORM_WIDTH),
             static_cast<GLdouble>(FORM_HEIGHT), 0.0,
             -1.0, 1.0);
-        
+
 
 
     // @@@ GLFWループ ----------------------------------------------------------------------------------------------------
@@ -358,7 +358,7 @@ main()
             ImGui::Combo("Combo", &comboId, "aaa\0bbb\0ccc\0ddd\0eee\0");
             ImGui::NewLine();
 
-            ImGui::TreePop();  // ツリーから出る（TreeNodeと1対1でなければエラー）
+            ImGui::TreePop();  // ツリーから出る（TreeNodeと1対1でなければ実行時エラー）
         }
         ImGui::Separator();
         ImGui::NewLine();
