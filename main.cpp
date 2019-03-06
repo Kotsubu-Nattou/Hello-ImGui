@@ -1,8 +1,8 @@
 #include <iostream>
 #include <windows.h>
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl2.h"
+#include "libs/imgui/imgui.h"
+#include "libs/imgui/imgui_impl_glfw.h"
+#include "libs/imgui/imgui_impl_opengl2.h"
 #include <GLEW/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -261,10 +261,16 @@ main()
         // @ ImGuiのバッファを刷新
         ImGui_ImplOpenGL2_NewFrame();
         ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        ImGui::NewFrame();  // これ以降いつでも名前空間「ImGui::」の命令を呼び出せる
 
   
         // @ ウィンドウ：Hello ImGui!
+        // ・表示領域の基本単位はウィンドウ
+        // ・フロー
+        //   1. SetNextWindowPosや、SetNextWindowSizeで形状を指定
+        //   2. Begin( タイトル, 開閉フラグ, 属性フラグ ) でウィンドウを開始
+        //   3. 各ウィジェットを定義
+        //   4. End() でウィンドウを終了
         static const float GUI_MARGIN_MAIN = 30.0f;
         // ウィンドウの座標（次のBeginが対象）
         ImGui::SetNextWindowPos(ImVec2(guiIO.DisplaySize.x - GUI_MARGIN_MAIN, GUI_MARGIN_MAIN),  // 座標
@@ -449,6 +455,7 @@ main()
 
 
         // @ ImGuiのバッファにレンダリング
+        ImGui::EndFrame();  // 省略可能（Render()内部で呼ばれるため）
         ImGui::Render();
 
 

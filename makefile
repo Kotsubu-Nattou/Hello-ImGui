@@ -12,7 +12,7 @@
 # ƒ}ƒNƒ   ### ‹L“ü€–Ú ###
 PROG        = a.exe
 RESRC       =
-CHILD_DIR   = imgui/
+CHILD_DIR   = libs/imgui/
 CHILD_OBJS  = imgui_impl_glfw.o    imgui_impl_opengl2.o
 CHILD_OBJS += imgui.o    imgui_draw.o    imgui_widgets.o
 OBJS        = main.o
