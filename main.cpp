@@ -164,10 +164,10 @@ main()
     guiFontConfig.MergeMode = true;
     // ASCII文字用のフォント
     // guiIO.Fonts->AddFontDefault();
-    guiIO.Fonts->AddFontFromFileTTF("imgui/fonts/Roboto-Medium.ttf", 21.0f);
-    // guiIO.Fonts->AddFontFromFileTTF("imgui/fonts/Cousine-Regular.ttf", 21.0f);
-    // guiIO.Fonts->AddFontFromFileTTF("imgui/fonts/DroidSans.ttf", 21.0f);
-    // guiIO.Fonts->AddFontFromFileTTF("imgui/fonts/ProggyTiny.ttf", 21.0f);
+    guiIO.Fonts->AddFontFromFileTTF("libs/imgui/fonts/Roboto-Medium.ttf", 21.0f);
+    // guiIO.Fonts->AddFontFromFileTTF("libs/imgui/fonts/Cousine-Regular.ttf", 21.0f);
+    // guiIO.Fonts->AddFontFromFileTTF("libs/imgui/fonts/DroidSans.ttf", 21.0f);
+    // guiIO.Fonts->AddFontFromFileTTF("libs/imgui/fonts/ProggyTiny.ttf", 21.0f);
     // 日本語用のフォント
     guiIO.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\meiryo.ttc", 26.0f,
                                     &guiFontConfig, guiIO.Fonts->GetGlyphRangesJapanese());
@@ -204,6 +204,9 @@ main()
     // flgGuiAttrMain |= ImGuiWindowFlags_NoCollapse;            // 最小化無し
     // flgGuiAttrMain |= ImGuiWindowFlags_NoNav;                 // ナビ無し
     // flgGuiAttrMain |= ImGuiWindowFlags_NoBringToFrontOnFocus; // 最前面に表示しない
+    // flgGuiAttrMain |= ImGuiWindowFlags_NoDecoration;          // NoTitleBar | NoResize | NoScrollbar | NoCollapse
+    // flgGuiAttrMain |= ImGuiWindowFlags_NoSavedSettings;       // imgui.iniの保存無し
+    // flgGuiAttrMain |= ImGuiWindowFlags_NoInputs;              // 操作無し
     // ウィンドウの属性：サブのGUI
     ImGuiWindowFlags flgGuiAttrSub = 0;
     // ウィンドウの属性：オーバーレイ
@@ -213,6 +216,7 @@ main()
     flgGuiAttrOverlay |= ImGuiWindowFlags_AlwaysAutoResize;      // 自動リサイズする（手動リサイズ無し）
     flgGuiAttrOverlay |= ImGuiWindowFlags_NoNav;                 // ナビ無し
     flgGuiAttrOverlay |= ImGuiWindowFlags_NoBringToFrontOnFocus; // 最前面に表示しない
+    flgGuiAttrOverlay |= ImGuiWindowFlags_NoSavedSettings;       // imgui.iniの保存無し
 
 
 
