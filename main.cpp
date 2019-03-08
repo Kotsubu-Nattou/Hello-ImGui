@@ -482,7 +482,6 @@ main()
         int64_t elapseTime = static_cast<int64_t>(glfwGetTime() - startTime) * 1000;
         // printf("Time(ms):%d\n", elapseTime);  // 1ループの純粋な処理時間
         doWait(elapseTime, WAIT_TIME);
-        glfwMakeContextCurrent(window);
         glfwSwapBuffers(window);
     }
 

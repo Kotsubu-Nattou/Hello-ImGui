@@ -1,17 +1,15 @@
 #################  Makefileの使い方  ####################
-# このMakefileは、メインのMakefileと違うディレクトリにある、
-# 「未コンパイルのライブラリ」等をコンパイルし、メインの
-# Makefileでリンクさせるために作成。
-# 使い方は、「親」Makefileから呼び出して使用する。又は、
-# ライブラリが更新したときに、直接実行する。
+# ・このMakefileについて
+#   下位ディレクトリなどに設置し、ソースを.oにコンパイル。
+#   メインとなるMakefileより連携して使用するか、単独で実行。
 ########################################################
 
 
 # マクロ   ### 記入項目 ###
-OBJS    = imgui_impl_glfw.o    imgui_impl_opengl2.o
+OBJS   := imgui_impl_glfw.o    imgui_impl_opengl2.o
 OBJS   += imgui.o    imgui_draw.o    imgui_widgets.o
-COMP    = g++
-CFLAGS  = -g -Wall
+COMP   := g++
+CFLAGS :=
 
 
 # デフォルトターゲット（先頭にあるのでデフォルトで実行）
