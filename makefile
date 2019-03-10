@@ -15,7 +15,7 @@ RESRC    :=
 SUB_DIR  := libs/imgui/
 SUB_OBJS := imgui_impl_glfw.o    imgui_impl_opengl2.o
 SUB_OBJS += imgui.o    imgui_draw.o    imgui_widgets.o
-OBJS     := main.o
+OBJS     := main.o  libs/module_gl/module_gl.o
 OBJS     += $(addprefix $(SUB_DIR), $(SUB_OBJS))
 LIBS     := -lopengl32 -lglu32 -lglew32 -lglfw3dll
 COMP     := g++
@@ -53,4 +53,5 @@ clean:
 
 
 # ヘッダファイルの依存関係   ### 記入項目 ###
-#main.o: sub.h
+main.o                    : libs/module_gl/module_gl.h
+libs/module_gl/module_gl.o: libs/module_gl/module_gl.h

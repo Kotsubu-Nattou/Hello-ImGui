@@ -5,99 +5,34 @@
 #include "libs/imgui/imgui_impl_opengl2.h"
 #include <GLEW/glew.h>
 #include <GLFW/glfw3.h>
-
-
+#include "libs/module_gl/module_gl.h"
 
 namespace {
     const bool    IS_FULL_SCREEN  = false;  // フルスクリーンかどうか 
-    const GLint   FORM_WIDTH      = 1024;   // 画面サイズ。フルスクリーンの場合は解像度
-    const GLint   FORM_HEIGHT     = 800;
+    const int     FORM_WIDTH      = 1024;   // 画面サイズ。フルスクリーンの場合は解像度
+    const int     FORM_HEIGHT     = 800;
     const int64_t WAIT_TIME       = 33;     // 1ループのウェイト（ms）
-
-    template <typename T>
-    struct VEC2 {
-        T x;
-        T y;
-    };
-
-    template <typename T>
-    struct VEC3 {
-        T x;
-        T y;
-        T z;
-    };
-
-    template <typename T>
-    struct VEC4 {
-        T x;
-        T y;
-        T z;
-        T w;
-    };
 }
 
 
 
-void doWait(int64_t elapse_ms, int64_t wait_ms);
 bool checkControllerEvent(GLFWwindow *window);
 
 
 
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// 【関数】
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-void
-doWait(int64_t elapse_ms, int64_t wait_ms)
+// 【関数】入力操作の判定
+// ＜戻り値＞アプリ終了の操作ならtrue、それ以外false
+bool checkControllerEvent(GLFWwindow *window)
 {
-    // 【関数】処理時間に応じたウェイト
-    // ＜引数＞elapse_msは計測開始からの経過時間。wait_msは最低ウェイトする時間。
-    // 単位はすべてミリ秒。計測開始点でglfwSetTime(0.0)を実行して使用する。Windows依存。
-    // 式。実際にウェイトする時間 = wait_ms - elapse_ms
-    int64_t ms = wait_ms - elapse_ms;
-
-    if (ms > 0) {
-        if (ms > wait_ms) ms = wait_ms;
-        Sleep(static_cast<DWORD>(ms));
-    }
-
-    return;
-}
-
-
-
-
-
-bool
-checkControllerEvent(GLFWwindow *window)
-{
-    // 【関数】入力操作の判定
-    // ＜戻り値＞アプリ終了の操作ならtrue、それ以外false
-    static bool flgMouseBtn[GLFW_MOUSE_BUTTON_LAST+1];  // 初期化不要。C++のstatic変数は自動で初期化
+    // static bool flgMouseBtn[GLFW_MOUSE_BUTTON_LAST+1];  // 初期化不要。C++のstatic変数は自動で初期化
     // static bool flgKey[GLFW_KEY_LAST+1];
 
     // @ アプリ終了操作
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-            return true;
-    
-    // @ ボタンのプッシュ処理
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-        if (!flgMouseBtn[GLFW_MOUSE_BUTTON_RIGHT]) {
-            return false;
-        }
-        flgMouseBtn[GLFW_MOUSE_BUTTON_RIGHT] = true;
-    }
-    else {
-        flgMouseBtn[GLFW_MOUSE_BUTTON_RIGHT] = false;
-    }
+    if (module_gl::pressedKey(GLFW_KEY_ESCAPE) ||
+        module_gl::pressedMouse(GLFW_MOUSE_BUTTON_RIGHT))
+        return true;
 
 
     return false;
@@ -117,39 +52,13 @@ checkControllerEvent(GLFWwindow *window)
 
 
 
-int
-main()
+int main()
 {
     // @@@ OpenGLの初期設定
-    // GLFWを初期化
-    if (!glfwInit()) return -1;
-    // 生成するウィンドウの特性
-    glfwWindowHint(GLFW_SAMPLES, 4);
-    // ウィンドウを生成し、識別子を取得
-    // glfwCreateWindowの第4引数に、glfwGetPrimaryMonitor()を渡すと、フルスクリーンになる。
-    // この際、widthとheightは解像度となる。
-    GLFWmonitor *monitor = IS_FULL_SCREEN ? glfwGetPrimaryMonitor() : NULL;
-    GLFWwindow *window = glfwCreateWindow(FORM_WIDTH, FORM_HEIGHT, "App. name", monitor , NULL);
-    if (!window) {
-        glfwTerminate();
-        return -1;
-    }
-    // カレントウィンドウに指定
-    glfwMakeContextCurrent(window);
-    // GLEWを初期化
-    if(glewInit() != GLEW_OK) {
-        glfwTerminate();
-        return -1;
-    }
-    // デフォルトのフレームバッファ識別子を取得（後で使用）
-    GLint showFrameBuffer;
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &showFrameBuffer);
-    // 垂直同期
-    glfwSwapInterval(1);  // 最近はOS自体がダブルバッファを使うため、無視される可能性あり
-    // その他
-    glfwSetTime(0.0);
-
-
+    GLFWwindow *window = module_gl::setupWindow("Hello ImGui!",
+                                                FORM_WIDTH, FORM_HEIGHT,
+                                                IS_FULL_SCREEN);
+    if (!window) return -1;
 
     // @@@ ImGuiの初期設定
     IMGUI_CHECKVERSION();
@@ -221,22 +130,13 @@ main()
 
 
     // @@@ 座標変換（モデルの実寸表示。左上基準。簡易2d用）
-    // @ プロジェクション座標変換
-    // ワールド座標に直に描画するため、「モデルビュー座標変換」は省略。
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();  // 初期化（単位行列）
-    // 正投影行列を作り、行列に掛け合わせる
-    // void glOrtho( 左x, 右x, 下y, 上y, 手前z, 奥z );
-    glOrtho(0.0, static_cast<GLdouble>(FORM_WIDTH),
-            static_cast<GLdouble>(FORM_HEIGHT), 0.0,
-            -1.0, 1.0);
+    module_gl::setView2D(0, 0, FORM_WIDTH, FORM_HEIGHT);
 
 
 
     // @@@ GLFWループ ----------------------------------------------------------------------------------------------------
     while (!glfwWindowShouldClose(window)) {
-        static double startTime;
-        startTime = glfwGetTime();
+        module_gl::startTimer();
         glfwPollEvents();
         if (checkControllerEvent(window)) break;
 
@@ -479,9 +379,8 @@ main()
 
 
         // @@ 後処理
-        int64_t elapseTime = static_cast<int64_t>(glfwGetTime() - startTime) * 1000;
-        // printf("Time(ms):%d\n", elapseTime);  // 1ループの純粋な処理時間
-        doWait(elapseTime, WAIT_TIME);
+        // printf("Time(ms):%d\n", module_gl::getElapseTime());  // 1ループの純粋な処理時間
+        module_gl::doWait(WAIT_TIME);
         glfwSwapBuffers(window);
     }
 
@@ -491,8 +390,7 @@ main()
     ImGui_ImplOpenGL2_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-    glfwDestroyWindow(window);
-    glfwTerminate();
+    module_gl::teardownWindow();
 
 
     return 0;
