@@ -1,11 +1,11 @@
 #include <iostream>
 #include <windows.h>
-#include "libs/imgui/imgui.h"
-#include "libs/imgui/imgui_impl_glfw.h"
-#include "libs/imgui/imgui_impl_opengl2.h"
+#include "Libs/ImGui/imgui.h"
+#include "Libs/ImGui/imgui_impl_glfw.h"
+#include "Libs/ImGui/imgui_impl_opengl2.h"
 #include <GLEW/glew.h>
 #include <GLFW/glfw3.h>
-#include "libs/module_gl/module_gl.h"
+#include "Libs/Module_GL/module_gl.h"
 
 namespace {
     const bool    IS_FULL_SCREEN  = false;  // フルスクリーンかどうか 
@@ -73,10 +73,10 @@ int main()
     guiFontConfig.MergeMode = true;
     // ASCII文字用のフォント
     // guiIO.Fonts->AddFontDefault();
-    guiIO.Fonts->AddFontFromFileTTF("libs/imgui/fonts/Roboto-Medium.ttf", 21.0f);
-    // guiIO.Fonts->AddFontFromFileTTF("libs/imgui/fonts/Cousine-Regular.ttf", 21.0f);
-    // guiIO.Fonts->AddFontFromFileTTF("libs/imgui/fonts/DroidSans.ttf", 21.0f);
-    // guiIO.Fonts->AddFontFromFileTTF("libs/imgui/fonts/ProggyTiny.ttf", 21.0f);
+    guiIO.Fonts->AddFontFromFileTTF("Libs/ImGui/fonts/Roboto-Medium.ttf", 21.0f);
+    // guiIO.Fonts->AddFontFromFileTTF("Libs/ImGui/fonts/Cousine-Regular.ttf", 21.0f);
+    // guiIO.Fonts->AddFontFromFileTTF("Libs/ImGui/fonts/DroidSans.ttf", 21.0f);
+    // guiIO.Fonts->AddFontFromFileTTF("Libs/ImGui/fonts/ProggyTiny.ttf", 21.0f);
     // 日本語用のフォント
     guiIO.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\meiryo.ttc", 26.0f,
                                     &guiFontConfig, guiIO.Fonts->GetGlyphRangesJapanese());

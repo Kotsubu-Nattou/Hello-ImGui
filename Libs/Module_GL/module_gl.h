@@ -1,32 +1,27 @@
+///////////////////////////////////////////////////////////////////////////////////////////////
+// 【モジュール定義】module_gl
+//
+// ・概要
+//   OpenGL関係のよく使う定型処理を、メインソースから切り離すことを目的とする。
+//   対応：Windows, GLFW, GLEW
+//   想定：GLFWでウィンドウを1つしか使わない。GLFWループや細かなメソッドは、
+//        メインソースから直接gl*命令をコールする。
+//
+// ・内容
+//   グローバルで使えるテンプレート構造体、VEC2～VEC4を用意（主な算術オペレーションに対応）
+//   下記のようなOpenGL関係の定型処理関数
+//       module_gl::setupWindow()    --- GLFWとGLEWを初期化してウィンドウを生成
+//       module_gl::teardownWindow() --- GLFWの終了処理
+///////////////////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
-
-template <typename T>
-struct VEC2 {
-    T x;
-    T y;
-};
-
-template <typename T>
-struct VEC3 {
-    T x;
-    T y;
-    T z;
-};
-
-template <typename T>
-struct VEC4 {
-    T x;
-    T y;
-    T z;
-    T w;
-};
-
-
+#include "structure_vec.h"
 
 
 
 namespace module_gl {
-    // 【関数】GLFWウィンドウを生成（GLEW対応）
+    // 【関数】GLFWとGLEWを初期化してウィンドウを生成
+    // ＜戻り値＞GLFWウィンドウ識別子。失敗でnullptr
     GLFWwindow* setupWindow(const char *title = "App. name",
                             int formWidth = 100, int formHeight = 100,
                             bool isFullScreen = false);
