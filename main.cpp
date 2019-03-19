@@ -118,19 +118,22 @@ int main()
     // flgGuiAttrMain |= ImGuiWindowFlags_NoInputs;              // 操作無し
     // ウィンドウの属性：サブのGUI
     ImGuiWindowFlags flgGuiAttrSub = 0;
-    // ウィンドウの属性：オーバーレイ
+    // ウィンドウの属性：オーバーレイウィンドウ
     ImGuiWindowFlags flgGuiAttrOverlay = 0;
     flgGuiAttrOverlay |= ImGuiWindowFlags_NoTitleBar;            // タイトルバー非表示
     flgGuiAttrOverlay |= ImGuiWindowFlags_NoMove;                // ウィンドウのドラッグ移動無し
     flgGuiAttrOverlay |= ImGuiWindowFlags_AlwaysAutoResize;      // 自動リサイズする（手動リサイズ無し）
     flgGuiAttrOverlay |= ImGuiWindowFlags_NoNav;                 // ナビ無し
-    flgGuiAttrOverlay |= ImGuiWindowFlags_NoBringToFrontOnFocus; // 最前面に表示しない
     flgGuiAttrOverlay |= ImGuiWindowFlags_NoSavedSettings;       // imgui.iniの保存無し
-
-
-
-    // @@@ 座標変換（モデルの実寸表示。左上基準。簡易2d用）
-    module_gl::setView2D(0, 0, FORM_WIDTH, FORM_HEIGHT);
+    // ウィンドウの属性：HUD
+    ImGuiWindowFlags flgGuiAttrHUD = 0;
+    flgGuiAttrHUD |= ImGuiWindowFlags_NoDecoration;          // NoTitleBar | NoResize | NoScrollbar | NoCollapse
+    flgGuiAttrHUD |= ImGuiWindowFlags_NoBackground;          // ウィンドウの背景を非表示
+    flgGuiAttrHUD |= ImGuiWindowFlags_NoMove;                // ウィンドウのドラッグ移動無し
+    flgGuiAttrHUD |= ImGuiWindowFlags_AlwaysAutoResize;      // 自動リサイズする（手動リサイズ無し）
+    flgGuiAttrHUD |= ImGuiWindowFlags_NoNav;                 // ナビ無し
+    flgGuiAttrHUD |= ImGuiWindowFlags_NoBringToFrontOnFocus; // 最前面に表示しない
+    flgGuiAttrHUD |= ImGuiWindowFlags_NoSavedSettings;       // imgui.iniの保存無し
 
 
 
@@ -139,6 +142,18 @@ int main()
         module_gl::startTimer();
         glfwPollEvents();
         if (checkControllerEvent(window)) break;
+
+
+        // @@ 座標系設定と、図形の移動
+        static int w, h;
+        glfwGetWindowSize(window, &w, &h);
+        module_gl::setView2D(0, 0, w, h);
+        glViewport(0, 0, w, h);
+        
+        static VEC2<GLfloat> objPos(200.0f, 200.0f), objSize(100.0f, 100.0f), objSpeed(5.0f, 5.0f);
+        objPos += objSpeed;
+        if (objPos.x >= w || objPos.x < 0.0f) objSpeed.x = -objSpeed.x;
+        if (objPos.y >= h || objPos.y < 0.0f) objSpeed.y = -objSpeed.y;
 
 
 
@@ -312,7 +327,7 @@ int main()
         }
 
 
-        // @ ウィンドウ：オーバーレイ
+        // @ ウィンドウ：オーバーレイウィンドウ
         enum {TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT};
         static const float GUI_MARGIN_OVERLAY = 20.0f;
         static int overlayCorner = BOTTOM_LEFT;
@@ -339,6 +354,7 @@ int main()
         ImGui::SetNextWindowPos(guiOverlayPos, ImGuiSetCond_Always, guiOverlayPivot);
         ImGui::SetNextWindowBgAlpha(0.2f);
         ImGui::Begin("Overlay", nullptr, flgGuiAttrOverlay);
+        ImGui::SetWindowFontScale(0.8f);  // このウィンドウのフォントスケール倍率
 
         // FPSを取得して表示
         ImGui::Text("FPS: %.1f",
@@ -358,6 +374,20 @@ int main()
         ImGui::End();
 
 
+        // @ ウィンドウ：HUD
+        static float progressVal = 0.0f;
+        static const ImVec2 progressSize(-1.0f, 0.0f);  // デフォルト（幅高さは自動で決まる）
+        (progressVal < 1.0f) ? progressVal += 0.01f : progressVal = 0.0f;
+        ImGui::SetNextWindowPos(ImVec2(objPos.x + objSize.x/2, objPos.y + objSize.y),  // 座標
+                                ImGuiSetCond_Always,       // いつ設定するか
+                                ImVec2(0.5f, 0.0f));       // 基準の位置（Pivot）
+        ImGui::Begin("HUD", nullptr, flgGuiAttrHUD);
+        ImGui::SetWindowFontScale(1.3f);  // このウィンドウのフォントスケール倍率
+        ImGui::TextColored(ImVec4(0.0f, 0.0f, 0.0f, 1.0f), u8"HUDとしても使用可能");
+        ImGui::ProgressBar(progressVal, progressSize, "HP");
+        ImGui::End();
+
+
         // @ ImGuiのバッファにレンダリング
         ImGui::EndFrame();  // 省略可能（Render()内部で呼ばれるため）
         ImGui::Render();
@@ -365,13 +395,12 @@ int main()
 
 
         // @@ ドロー
-        static int w, h;
-        glfwGetWindowSize(window, &w, &h);
-        glViewport(0, 0, w, h);
         glClearColor(rgba[0], rgba[1], rgba[2], rgba[3]);
         glClear(GL_COLOR_BUFFER_BIT);
 
         // ここにメインのドロー処理を記述...
+        glRectf(objPos.x, objPos.y,
+                objPos.x + objSize.x, objPos.y + objSize.y);
 
         // @ ImGuiをドロー（最前面にするため最後に描画）
         ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());

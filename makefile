@@ -54,4 +54,4 @@ clean:
 
 # ヘッダファイルの依存関係   ### 記入項目 ###
 #main.o: sub.h
-Libs/Module_GL/module_gl.o: Libs/Module_GL/module_gl.h Libs/Module_GL/structure_vec.h
+Libs/Module_GL/module_gl.o: Libs/Module_GL/module_gl.h Libs/Module_GL/struct_vec.h
